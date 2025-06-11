@@ -3,8 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
 import SwaggerParser from '@apidevtools/swagger-parser';
-import { generateJestTests } from './generators/jest';
-import { generateMochaTests } from './generators/mocha';
+import { generateJestTests, GenerateTestOptions as JestTestOptions } from './generators/jest';
+import { generateMochaTests, GenerateTestOptions as MochaTestOptions } from './generators/mocha';
 import { generatePostmanCollection } from './generators/postman';
 
 const program = new Command();
@@ -40,22 +40,32 @@ async function main() {
       fs.mkdirSync(outputPath, { recursive: true });
     }
 
+    const params = {
+      swagger,
+      outputDir: outputPath,
+      baseUrl: options.baseUrl,
+      token: options.token,
+    };
+
     if (options.framework === 'jest') {
-      generateJestTests(swagger, outputPath, options.baseUrl, options.token);
+      console.log('⚙️ Generating Jest tests...');
+      generateJestTests(params);
+      console.log(`✅ Jest tests saved to ${outputPath}`);
     } else if (options.framework === 'mocha') {
-      generateMochaTests(swagger, outputPath, options.baseUrl, options.token);
+      console.log('⚙️ Generating Mocha tests...');
+      generateMochaTests(params);
+      console.log(`✅ Mocha tests saved to ${outputPath}`);
     } else {
       console.error('Unsupported framework. Choose either "jest" or "mocha".');
       process.exit(1);
     }
 
     if (options.outputPostman) {
+      console.log('⚙️ Generating Postman collection...');
       const postmanCollection = generatePostmanCollection(swagger, options.baseUrl, options.token);
-      fs.writeFileSync(
-        path.resolve(options.outputPostman),
-        JSON.stringify(postmanCollection, null, 2)
-      );
-      console.log('✅ Postman collection generated.');
+      const postmanPath = path.resolve(options.outputPostman);
+      fs.writeFileSync(postmanPath, JSON.stringify(postmanCollection, null, 2));
+      console.log(`✅ Postman collection saved to ${postmanPath}`);
     }
 
     console.log('✅ Test files generated successfully.');

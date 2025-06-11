@@ -16,17 +16,30 @@ export function generatePostmanCollection(
             ? [
                 {
                   key: 'Authorization',
-                  value: token,
+                  value: '{{auth_token}}',
                   type: 'text',
                 },
               ]
             : [],
           url: {
-            raw: `${baseUrl}${route}`,
-            host: [baseUrl || ''],
+            raw: '{{base_url}}' + '${route}',
+            host: ['{{base_url}}'],
             path: route.replace(/^\//, '').split('/'),
           },
         },
+        event: [
+          {
+            listen: 'test',
+            script: {
+              type: 'text/javascript',
+              exec: [
+                'pm.test("Status code is 200", function () {',
+                '  pm.response.to.have.status(200);',
+                '});'
+              ],
+            },
+          },
+        ],
       });
     });
   });
@@ -37,5 +50,9 @@ export function generatePostmanCollection(
       schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
     },
     item: items,
+    variable: [
+      { key: 'base_url', value: baseUrl || '' },
+      { key: 'auth_token', value: token || '' },
+    ],
   };
 }
