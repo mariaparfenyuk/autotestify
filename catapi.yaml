@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  title: The Cat API (Sample)
+  version: '1.0.0'
+servers:
+  - url: https://api.thecatapi.com/v1
+paths:
+  /images/search:
+    get:
+      summary: Search for cat images
+      operationId: getImagesSearch
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 1
+          description: Number of images to return
+        - in: query
+          name: size
+          schema:
+            type: string
+            enum: [small, med, full]
+          description: Image size filter
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    url:
+                      type: string
+                    width:
+                      type: integer
+                    height:
+                      type: integer
+  /breeds:
+    get:
+      summary: Get all breeds
+      operationId: getBreeds
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    temperament:
+                      type: string
+                    origin:
+                      type: string
+  /breeds/{breed_id}:
+    get:
+      summary: Get breed by ID
+      operationId: getBreedById
+      parameters:
+        - in: path
+          name: breed_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  temperament:
+                    type: string
+                  origin:
+                    type: string
